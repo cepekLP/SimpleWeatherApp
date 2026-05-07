@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter: clean build artifacts",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "if (Test-Path build) { cmd /c rmdir /s /q build }; if (Test-Path windows\\flutter\\ephemeral\\.plugin_symlinks) { cmd /c rmdir /s /q windows\\flutter\\ephemeral\\.plugin_symlinks }; if (Test-Path windows\\flutter\\ephemeral) { attrib -R windows\\flutter\\ephemeral /S /D | Out-Null }"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: pub get",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" pub get"
+      ],
+      "problemMatcher": [],
+      "dependsOn": [
+        "Flutter: clean build artifacts"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Flutter: run (ask API key)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" run -d ${input:flutterDevice} --dart-define=OPENWEATHER_API_KEY=${input:openWeatherApiKey}"
+      ],
+      "problemMatcher": [],
+      "dependsOn": [
+        "Flutter: clean build artifacts",
+        "Flutter: pub get"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Flutter: analyze",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" analyze"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: test",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" test"
+      ],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "openWeatherApiKey",
+      "type": "promptString",
+      "description": "OpenWeather API key",
+      "password": true
+    },
+    {
+      "id": "flutterDevice",
+      "type": "pickString",
+      "description": "Target device",
+      "options": [
+        "windows",
+        "chrome",
+        "edge"
+      ],
+      "default": "chrome"
+    }
+  ]
+}
