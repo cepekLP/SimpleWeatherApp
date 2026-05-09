@@ -36,62 +36,102 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _SearchBar(
-                controller: _cityController,
-                onSearch: () => widget.controller.searchCity(_cityController.text),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  key: const Key('useCurrentLocationButton'),
-                  onPressed: widget.controller.useCurrentLocation,
-                  icon: const Icon(Icons.my_location),
-                  label: const Text('Use current location'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (widget.controller.status == WeatherViewStatus.loading)
-                const Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(key: Key('loadingIndicator')),
+    return MediaQuery(
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: const TextScaler.linear(1.2)),
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF6996CD), Color(0xFF000761)],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _SearchBar(
+                    controller: _cityController,
+                    onSearch: () =>
+                        widget.controller.searchCity(_cityController.text),
                   ),
-                )
-              else if (widget.controller.status == WeatherViewStatus.error)
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      widget.controller.errorMessage ?? 'Unknown error',
-                      key: const Key('errorMessage'),
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      key: const Key('useCurrentLocationButton'),
+                      onPressed: widget.controller.useCurrentLocation,
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white.withOpacity(0.18),
+                        side: const BorderSide(color: Colors.white70),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      icon: const Icon(Icons.my_location),
+                      label: const Text(
+                        'Use current location',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
-                )
-              else if (widget.controller.cityResults.isNotEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    key: const Key('cityResultsList'),
-                    itemCount: widget.controller.cityResults.length,
-                    itemBuilder: (context, index) {
-                      final city = widget.controller.cityResults[index];
-                      return ListTile(
-                        title: Text(city.label),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => widget.controller.chooseLocation(city),
-                      );
-                    },
-                  ),
-                )
-              else
-                Expanded(child: _WeatherContent(controller: widget.controller)),
-            ],
+                  const SizedBox(height: 8),
+                  if (widget.controller.status == WeatherViewStatus.loading)
+                    const Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          key: Key('loadingIndicator'),
+                        ),
+                      ),
+                    )
+                  else if (widget.controller.status == WeatherViewStatus.error)
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          widget.controller.errorMessage ?? 'Unknown error',
+                          key: const Key('errorMessage'),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else if (widget.controller.cityResults.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        key: const Key('cityResultsList'),
+                        itemCount: widget.controller.cityResults.length,
+                        itemBuilder: (context, index) {
+                          final city = widget.controller.cityResults[index];
+                          return ListTile(
+                            title: Text(
+                              city.label,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            trailing: const Icon(
+                              Icons.chevron_right,
+                              color: Colors.white,
+                            ),
+                            onTap: () => widget.controller.chooseLocation(city),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: _WeatherContent(controller: widget.controller),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -116,7 +156,10 @@ class _SearchBar extends StatelessWidget {
         hintText: 'Search city',
         filled: true,
         fillColor: const Color(0xFFF1F4F8),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,
@@ -140,77 +183,114 @@ class _WeatherContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final weather = controller.weather;
     if (weather == null) {
-      return const Center(child: Text('Select a city or use current location.'));
+      return const Center(
+        child: Text(
+          'Select a city or use current location.',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
     }
 
     final current = weather.current;
     final nextThreeDays = controller.forecast.take(3).toList(growable: false);
 
-    return Column(
-      key: const Key('weatherContentList'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          controller.locationLabel,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${current.temperature.round()} C  ${_titleCase(current.description)}',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 10),
-                  Text('Humidity: ${current.humidity}%'),
-                  Text('Sunrise: ${_formatTime(current.sunrise)}'),
-                  Text('Sunset: ${_formatTime(current.sunset)}'),
-                ],
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        key: const Key('weatherContentList'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            controller.locationLabel,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Colors.black87,
+              fontWeight: FontWeight.w700,
+              fontSize:
+                  (Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24) +
+                  6,
             ),
-            _WeatherIcon(iconCode: current.iconCode, size: 88),
-          ],
-        ),
-        const Spacer(),
-        Row(
-          key: const Key('next3DaysRow'),
-          children: nextThreeDays
-              .map(
-                (day) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF6F8FA),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(_weekday(day.date)),
-                          const SizedBox(height: 4),
-                          _WeatherIcon(iconCode: day.iconCode, size: 42),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${day.maxTemp.round()} / ${day.minTemp.round()} C',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
+          ),
+          const SizedBox(height: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '${current.temperature.round()} C  ${_titleCase(current.description)}',
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Humidity: ${current.humidity}%',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Sunrise: ${_formatTime(current.sunrise)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Sunset: ${_formatTime(current.sunset)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              _WeatherIcon(iconCode: current.iconCode, size: 176),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            key: const Key('next3DaysRow'),
+            children: nextThreeDays
+                .map(
+                  (day) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _weekday(day.date),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${day.maxTemp.round()} C',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${day.minTemp.round()} C',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.white70),
+                            ),
+                            const SizedBox(height: 4),
+                            _WeatherIcon(iconCode: day.iconCode, size: 84),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              )
-              .toList(growable: false),
-        ),
-      ],
+                )
+                .toList(growable: false),
+          ),
+        ],
+      ),
     );
   }
 
@@ -236,17 +316,33 @@ class _WeatherContent extends StatelessWidget {
 class _WeatherIcon extends StatelessWidget {
   final String iconCode;
   final double size;
+  static const double _layoutHeightFactor = 0.7;
 
   const _WeatherIcon({required this.iconCode, required this.size});
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      'https://openweathermap.org/img/wn/$iconCode@2x.png',
+    return SizedBox(
       width: size,
-      height: size,
-      errorBuilder: (context, error, stackTrace) =>
-          Icon(Icons.cloud, size: size * 0.75),
+      height: size * _layoutHeightFactor,
+      child: ClipRect(
+        child: OverflowBox(
+          minWidth: size,
+          maxWidth: size,
+          minHeight: size,
+          maxHeight: size,
+          alignment: Alignment.center,
+          child: Image.network(
+            'https://openweathermap.org/img/wn/$iconCode@4x.png',
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) =>
+                Icon(Icons.cloud, size: size * 0.75),
+          ),
+        ),
+      ),
     );
   }
 }

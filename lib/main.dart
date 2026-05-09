@@ -30,6 +30,7 @@ class SimpleWeatherApp extends StatelessWidget {
       title: 'Simple Weather App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        fontFamily: 'Bahnschrift',
         useMaterial3: true,
       ),
       home: WeatherScreen(controller: controller),
