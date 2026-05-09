@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'features/location/data/device_location_service.dart';
 import 'features/location/data/location_storage.dart';
@@ -6,7 +7,10 @@ import 'features/weather/data/open_weather_service.dart';
 import 'features/weather/presentation/weather_controller.dart';
 import 'features/weather/presentation/weather_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
   final controller = WeatherController(
     weatherService: OpenWeatherService(),
     locationService: GeolocatorDeviceLocationService(),

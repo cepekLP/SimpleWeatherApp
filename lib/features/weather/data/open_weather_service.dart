@@ -8,10 +8,7 @@ import '../domain/models/weather.dart';
 import 'weather_mapper.dart';
 
 abstract class WeatherService {
-  Future<Weather> fetchWeather({
-    required double lat,
-    required double lon,
-  });
+  Future<Weather> fetchWeather({required double lat, required double lon});
 
   Future<List<LocationCandidate>> searchCity(String query);
 }
@@ -25,7 +22,10 @@ class OpenWeatherService implements WeatherService {
       _apiKey = apiKey ?? Env.openWeatherApiKey;
 
   @override
-  Future<Weather> fetchWeather({required double lat, required double lon}) async {
+  Future<Weather> fetchWeather({
+    required double lat,
+    required double lon,
+  }) async {
     _requireApiKey();
 
     final uri = Uri.https('api.openweathermap.org', '/data/3.0/onecall', {
@@ -86,7 +86,7 @@ class OpenWeatherService implements WeatherService {
   void _requireApiKey() {
     if (_apiKey.trim().isEmpty) {
       throw const WeatherApiException(
-        'Missing OPENWEATHER_API_KEY. Pass it via --dart-define.',
+        'Missing OPENWEATHER_API_KEY. Add it to .env.',
       );
     }
   }
