@@ -45,6 +45,19 @@
       "dependsOrder": "sequence"
     },
     {
+      "label": "Flutter: start Android emulator",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" emulators --launch ${input:androidEmulatorId}"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Flutter: analyze",
       "type": "shell",
       "command": "powershell",
@@ -69,18 +82,40 @@
         "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" test"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Flutter: build iOS (macOS only)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "& \"$env:USERPROFILE\\.puro\\envs\\weatherenv\\flutter\\bin\\flutter.bat\" build ios --release"
+      ],
+      "problemMatcher": [],
+      "dependsOn": [
+        "Flutter: pub get"
+      ],
+      "dependsOrder": "sequence"
     }
   ],
   "inputs": [
     {
       "id": "flutterDevice",
       "type": "pickString",
-      "description": "Target device",
+      "description": "Target device id",
       "options": [
         "windows",
-        "edge"
+        "emulator-5554"
       ],
       "default": "windows"
+    },
+    {
+      "id": "androidEmulatorId",
+      "type": "promptString",
+      "description": "Android emulator id (from 'flutter emulators')"
     }
   ]
 }
